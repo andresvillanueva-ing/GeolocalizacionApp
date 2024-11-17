@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Cliente</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhY3KKZqE_kTqO-SAztCZg9KrVdEqzRIw"></script> <!-- Sustituir por tu clave -->
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Registro de Cliente</h1>
+
+    <form id="registerForm">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" required>
+        <label for="vehicle">Vehículo:</label>
+        <input type="text" id="vehicle" required>
+        <button type="submit">Registrar</button>
+    </form>
+
+    <div id="map" style="width: 100%; height: 500px; margin-top: 20px;"></div>
+
+    <script>
+        const socket = io();
+        let clientData = {};
+        let map;
+        let marker;
+
+        document.getElementById('registerForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const vehicle = document.getElementById('vehicle').value;
+
+            clientData = { name, vehicle };
+
+            if (!map) {
+                initializeMap();
+            }
+
+            trackLocation();
+        });
+
+        function initializeMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 0, lng: 0 },
+                zoom: 15,
+            });
+        }
+
+        function trackLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        socket.emit('sendLocation', { ...clientData, latitude, longitude });
+                        console.log('Ubicación enviada:', { ...clientData, latitude, longitude });
+
+                        if (!marker) {
+                            marker = new google.maps.Marker({
+                                position: { lat: latitude, lng: longitude },
+                                map: map,
+                                title: `Ubicación de ${clientData.name}`,
+                            });
+                        } else {
+                            marker.setPosition({ lat: latitude, lng: longitude });
+                        }
+
+                        map.setCenter({ lat: latitude, lng: longitude });
+                    },
+                    (error) => console.error('Error al obtener la ubicación:', error),
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
+            } else {
+                alert('Geolocalización no soportada.');
+            }
+        }
+    </script>
+</body>
+</html>
