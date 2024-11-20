@@ -9,7 +9,13 @@ const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta para la vista del cliente
+// Pagina principal.
+
+app.get('/', (req, res) =>{
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Ruta para la vista del supervisor 
 app.get('/cliente', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'registro.html'));
 });
@@ -19,6 +25,7 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// Conexion de Socket.io
 io.on('connection', (socket) => {
     console.log('Un cliente se ha conectado.');
 
@@ -34,6 +41,7 @@ io.on('connection', (socket) => {
     });
 });
 
+// Verficacion del servidor.
 server.listen(3000, () => {
     console.log('Servidor funcionando en http://localhost:3000');
 });
