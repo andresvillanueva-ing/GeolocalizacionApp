@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Pagina principal.
 
 app.get('/', (req, res) =>{
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Ruta para la vista del supervisor 
